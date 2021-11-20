@@ -3,12 +3,14 @@ from flask_restful import Resource, Api, reqparse
 import pandas as pd
 import ast
 import json
-
+from flask_cors import CORS, cross_origin
 import os
 
 
 
 app = Flask(__name__)
+cors = CORS(app)
+app.config['CORS_HEADERS'] = 'Content-Type'
 api = Api(app)
 
 
@@ -253,7 +255,7 @@ class RealTimeSites(Resource):
 
     return {'data': returnArray}, 200  # return data with 200 OK
   
-    
+
 api.add_resource(Data, '/data')
 api.add_resource(Devices, '/sensor_locations')
 api.add_resource(RealTimeSensors, '/realtime_sensors')
