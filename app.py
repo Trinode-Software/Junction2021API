@@ -3,14 +3,13 @@ from flask_restful import Resource, Api, reqparse
 import pandas as pd
 import ast
 import json
-from flask_cors import CORS, cross_origin
+from flask_cors import CORS
 import os
 
 
 
 app = Flask(__name__)
-cors = CORS(app)
-app.config['CORS_HEADERS'] = 'Content-Type'
+cors = CORS(app, resources={r"*": {"origins": "*"}})
 api = Api(app)
 
 
