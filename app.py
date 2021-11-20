@@ -1,6 +1,7 @@
 from flask import Flask
 from flask_restful import Resource, Api, reqparse
 import pandas as pd
+import numpy as np
 import ast
 import json
 from flask_cors import CORS
@@ -254,12 +255,92 @@ class RealTimeSites(Resource):
 
     return {'data': returnArray}, 200  # return data with 200 OK
   
+  
+class Transition(Resource):
+  def post(self):
+    parser = reqparse.RequestParser()  # initialize
+    
+    parser.add_argument('site', required=True)  # add args
+    parser.add_argument('startpoint', required=True)
+    parser.add_argument('timestep', required=True)
+    
+    args = parser.parse_args()  # parse arguments to dictionary
+    
+    site = args['site'] # site name, as string
+    startpoint = args['startpoint']
+    timestep = args['timestep']
+    
+    script_dir = os.getcwd()
+
+    file = 'data/' + site + '/' + site + '.pkl'
+    
+    df_events = pd.read_pickle(os.path.abspath(os.path.join(script_dir, file)), compression='gzip')
+    df_events.loc[:, 'timestamp'] = (pd.to_datetime(df_events['timestamp'], utc=True)
+                                .dt.tz_convert('Europe/Helsinki')
+                                .dt.tz_localize(None))  
+    
+    df_events.timestamp = df_events.timestamp.dt.floor('2min')
+    df_events = df_events.drop_duplicates()
+
+    timestamps = {}
+    for row in df_events.itertuples():
+      key = str(row.timestamp)
+      if key in timestamps.keys():
+        timestamps[key].append(row.deviceid)
+      else:
+        timestamps[key] = [row.deviceid]
+      
+    data = timestamps.copy()
+    devices = []
+    newObject = {
+      'total': 0
+    }
+    
+    file = 'data/' + site + '/' + site + '.json'    
+    df_devices = pd.read_json(os.path.abspath(os.path.join(script_dir, file)))
+    
+    devicesCount = int(df_devices.count(axis=0)['deviceid'])
+    for i in range(devicesCount):
+      newObject[i] = 0
+
+
+
+    devices = []
+    for i in range(devicesCount):
+      devices.append(newObject.copy())
+      
+
+    for object in data.values():
+      for device1 in object:
+        devices[device1]['total'] += 1
+        for device2 in object:
+          devices[device1][device2] += 1
+
+    devicesAsObjects = devices.copy()
+
+    deviceMatrix = []
+    for device in devicesAsObjects:
+      sum = 0
+      for i in range(devicesCount):
+        sum += device[i]
+        
+      row = []
+      for i in range(devicesCount):
+        row.append(device[i] / sum)
+      
+      deviceMatrix.append(row)
+      
+    numpyMatrix = np.matrix(deviceMatrix)
+    power = np.linalg.matrix_power(numpyMatrix, int(timestep) + 1)
+    return {'data': power.tolist()[int(startpoint)]}, 200
+  
 
 api.add_resource(Data, '/data')
 api.add_resource(Devices, '/sensor_locations')
 api.add_resource(RealTimeSensors, '/realtime_sensors')
 api.add_resource(RealTimeRooms, '/realtime_rooms')
 api.add_resource(RealTimeSites, '/realtime_sites')
+api.add_resource(Transition, '/transition')
 
 
 
