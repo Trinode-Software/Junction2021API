@@ -33,7 +33,7 @@ class Data(Resource):
     
     script_dir = os.getcwd()
   
-    file = 'flaskr/data/' + site + '/' + site + '.pkl'
+    file = 'data/' + site + '/' + site + '.pkl'
     
     
     df_events = pd.read_pickle(os.path.abspath(os.path.join(script_dir, file)), compression='gzip')
@@ -72,7 +72,7 @@ class Devices(Resource):
     
     script_dir = os.getcwd()
   
-    file = 'flaskr/data/' + site + '/' + site + '.json'
+    file = 'data/' + site + '/' + site + '.json'
     
     
     df_devices = pd.read_json(os.path.abspath(os.path.join(script_dir, file)))
@@ -101,7 +101,7 @@ class RealTimeSensors(Resource):
     
     script_dir = os.getcwd()
   
-    file = 'flaskr/data/' + site + '/' + site + '.pkl'
+    file = 'data/' + site + '/' + site + '.pkl'
     
     
     df_events = pd.read_pickle(os.path.abspath(os.path.join(script_dir, file)), compression='gzip')
@@ -149,7 +149,7 @@ class RealTimeRooms(Resource):
     
     script_dir = os.getcwd()
   
-    file = 'flaskr/data/' + site + '/' + site + '.pkl'
+    file = 'data/' + site + '/' + site + '.pkl'
     
     
     df_events = pd.read_pickle(os.path.abspath(os.path.join(script_dir, file)), compression='gzip')
@@ -159,7 +159,7 @@ class RealTimeRooms(Resource):
      
     
   
-    file = 'flaskr/data/' + site + '/' + site + '.json'
+    file = 'data/' + site + '/' + site + '.json'
     df_devices = pd.read_json(os.path.abspath(os.path.join(script_dir, file)))
     
     
@@ -218,7 +218,7 @@ class RealTimeSites(Resource):
       
     returnArray = []
     for i in range(len(sites)):
-      file = 'flaskr/data/' + sites[i] + '/' + sites[i] + '.pkl'
+      file = 'data/' + sites[i] + '/' + sites[i] + '.pkl'
       
       
       df_events = pd.read_pickle(os.path.abspath(os.path.join(script_dir, file)), compression='gzip')
