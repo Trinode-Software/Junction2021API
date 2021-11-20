@@ -261,7 +261,7 @@ class Transition(Resource):
     parser = reqparse.RequestParser()  # initialize
     
     parser.add_argument('site', required=True)  # add args
-    parser.add_argument('startpoint', required=True)
+    parser.add_argument('startpoint', required=False)
     parser.add_argument('timestep', required=True)
     
     args = parser.parse_args()  # parse arguments to dictionary
@@ -279,7 +279,7 @@ class Transition(Resource):
                                 .dt.tz_convert('Europe/Helsinki')
                                 .dt.tz_localize(None))  
     
-    df_events.timestamp = df_events.timestamp.dt.floor('5S')
+    df_events.timestamp = df_events.timestamp.dt.floor('15S')
     df_events = df_events.drop_duplicates()
 
     timestamps = {}
@@ -300,11 +300,20 @@ class Transition(Resource):
     df_devices = pd.read_json(os.path.abspath(os.path.join(script_dir, file)))
     
     devicesCount = int(df_devices.count(axis=0)['deviceid'])
+    
     for i in range(devicesCount):
       newObject[i] = 0
 
+    devicesCloseEnough = []
 
-
+    for row1 in df_devices.itertuples():
+      array = []
+      for row2 in df_devices.itertuples():
+        distance = np.sqrt((row2.x - row1.x)**2 + (row2.y - row1.y)**2)
+        if distance <= 600:
+          array.append(row2.deviceid)
+      devicesCloseEnough.append(array)
+      
     devices = []
     for i in range(devicesCount):
       devices.append(newObject.copy())
@@ -314,7 +323,9 @@ class Transition(Resource):
       for device1 in object:
         devices[device1]['total'] += 1
         for device2 in object:
-          devices[device1][device2] += 1
+          if device2 in devicesCloseEnough[device1] and not device1 == device2:
+            devices[device1][device2] += 1
+
 
     devicesAsObjects = devices.copy()
 
@@ -332,7 +343,11 @@ class Transition(Resource):
       
     numpyMatrix = np.matrix(deviceMatrix)
     power = np.linalg.matrix_power(numpyMatrix, int(timestep) + 1)
-    return {'data': power.tolist()[int(startpoint)]}, 200
+    
+    if startpoint:
+      return {'data': power.tolist()[int(startpoint)]}, 200
+    else:
+      return {'data': power.tolist()}, 200
   
 
 api.add_resource(Data, '/data')
