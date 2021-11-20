@@ -1,0 +1,87 @@
+[
+    {
+        "roomid": 0,
+        "deviceids": [
+            {"deviceid": 22},
+            {"deviceid": 50},
+            {"deviceid": 53},
+            {"deviceid": 51},
+            {"deviceid": 52},
+            {"deviceid": 54},
+            {"deviceid": 24},
+            {"deviceid": 23},
+            {"deviceid": 55},
+            {"deviceid": 2},
+            {"deviceid": 45},
+            {"deviceid": 25},
+            {"deviceid": 14},
+            {"deviceid": 16},
+            {"deviceid": 3},
+            {"deviceid": 46},
+            {"deviceid": 4},
+            {"deviceid": 5},
+            {"deviceid": 17},
+            {"deviceid": 26},
+            {"deviceid": 15},
+            {"deviceid": 6},
+            {"deviceid": 47},
+            {"deviceid": 7},
+            {"deviceid": 18},
+            {"deviceid": 19},
+            {"deviceid": 48},
+            {"deviceid": 49},
+            {"deviceid": 21},
+            {"deviceid": 20}
+        ]
+    },
+    {
+        "roomid": 1,
+        "deviceids": [
+            {"deviceid": 38},
+            {"deviceid": 40},
+            {"deviceid": 39},
+            {"deviceid": 37},
+            {"deviceid": 30},
+            {"deviceid": 29},
+            {"deviceid": 1},
+            {"deviceid": 28},
+            {"deviceid": 27}
+        ]
+    },
+    {
+        "roomid": 2,
+        "deviceids": [
+            {"deviceid": 33},
+            {"deviceid": 8},
+            {"deviceid": 32},
+            {"deviceid": 31},
+            {"deviceid": 36},
+            {"deviceid": 34},
+            {"deviceid": 35},
+            {"deviceid": 9}
+        ]
+    },
+    {
+        "roomid": 3,
+        "deviceids": [
+            {"deviceid": 44},
+            {"deviceid": 43}
+        ]
+    },
+    {
+        "roomid": 4,
+        "deviceids": [
+            {"deviceid": 41},
+            {"deviceid": 12}
+        ]
+    },
+    {
+        "roomid": 5,
+        "deviceids": [
+            {"deviceid": 13},
+            {"deviceid": 42},
+            {"deviceid": 11},
+            {"deviceid": 10}
+        ]
+    }
+]
