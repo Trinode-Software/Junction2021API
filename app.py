@@ -279,7 +279,7 @@ class Transition(Resource):
                                 .dt.tz_convert('Europe/Helsinki')
                                 .dt.tz_localize(None))  
     
-    df_events.timestamp = df_events.timestamp.dt.floor('15S')
+    df_events.timestamp = df_events.timestamp.dt.floor('5S')
     df_events = df_events.drop_duplicates()
 
     timestamps = {}
