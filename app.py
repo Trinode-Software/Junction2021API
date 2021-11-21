@@ -349,6 +349,151 @@ class Transition(Resource):
     else:
       return {'data': power.tolist()}, 200
   
+  
+class HeatMap(Resource):
+  def post(self):
+    parser = reqparse.RequestParser()  # initialize
+    
+    parser.add_argument('site', required=True)  # add args
+    
+    args = parser.parse_args()  # parse arguments to dictionary
+    
+    site = args['site'] # site name, as string
+    timestep = 1
+    
+    script_dir = os.getcwd()
+
+    file = 'data/' + site + '/' + site + '.pkl'
+    
+    df_events = pd.read_pickle(os.path.abspath(os.path.join(script_dir, file)), compression='gzip')
+    df_events.loc[:, 'timestamp'] = (pd.to_datetime(df_events['timestamp'], utc=True)
+                                .dt.tz_convert('Europe/Helsinki')
+                                .dt.tz_localize(None))  
+    
+    df_events.timestamp = df_events.timestamp.dt.floor('15S')
+    df_events = df_events.drop_duplicates()
+
+    timestamps = {}
+    for row in df_events.itertuples():
+      key = str(row.timestamp)
+      if key in timestamps.keys():
+        timestamps[key].append(row.deviceid)
+      else:
+        timestamps[key] = [row.deviceid]
+      
+    data = timestamps.copy()
+    devices = []
+    newObject = {
+      'total': 0
+    }
+    
+    file = 'data/' + site + '/' + site + '.json'    
+    df_devices = pd.read_json(os.path.abspath(os.path.join(script_dir, file)))
+    
+    devicesCount = int(df_devices.count(axis=0)['deviceid'])
+    
+    for i in range(devicesCount):
+      newObject[i] = 0
+
+    devicesCloseEnough = []
+
+    for row1 in df_devices.itertuples():
+      array = []
+      for row2 in df_devices.itertuples():
+        distance = np.sqrt((row2.x - row1.x)**2 + (row2.y - row1.y)**2)
+        if distance <= 600:
+          array.append(row2.deviceid)
+      devicesCloseEnough.append(array)
+      
+    devices = []
+    for i in range(devicesCount):
+      devices.append(newObject.copy())
+      
+
+    for object in data.values():
+      for device1 in object:
+        devices[device1]['total'] += 1
+        for device2 in object:
+          if device2 in devicesCloseEnough[device1] and not device1 == device2:
+            devices[device1][device2] += 1
+
+
+    devicesAsObjects = devices.copy()
+
+    deviceMatrix = []
+    for device in devicesAsObjects:
+      sum = 0
+      for i in range(devicesCount):
+        sum += device[i]
+        
+      row = []
+      for i in range(devicesCount):
+        row.append(device[i] / sum)
+      
+      deviceMatrix.append(row)
+      
+    numpyMatrix = np.matrix(deviceMatrix)
+    power = np.linalg.matrix_power(numpyMatrix, int(timestep) + 1)
+    
+    # power.tolist()
+    
+    df_matrix = pd.DataFrame(power)
+    newObject = {}
+
+    for i in range(devicesCount):
+      newObject[i] = 0
+
+    file = 'data/' + site + '/' + site + '.pkl'
+    
+    df_events = pd.read_pickle(os.path.abspath(os.path.join(script_dir, file)), compression='gzip')
+    df_events.loc[:, 'timestamp'] = (pd.to_datetime(df_events['timestamp'], utc=True)
+                                .dt.tz_convert('Europe/Helsinki')
+                                .dt.tz_localize(None)) 
+    
+    df_events_all = df_events.copy()
+    df_events_all.loc[:,'value'] = 1.0
+    df_events_all = df_events_all.drop('timestamp', axis=1)
+
+    df_events_all = df_events_all.groupby('deviceid').sum()
+    
+    totals = []
+    totalsum = 0
+
+    for count in df_events_all.itertuples():
+      totals.append(count.value)
+      totalsum += count.value
+
+    counter = 0
+    for row in df_matrix.itertuples():
+      for nodeIndex in range(1, devicesCount + 1):
+        index = nodeIndex - 1
+        probability = row[nodeIndex]
+        multiplier = totals[counter]
+        value = probability * multiplier
+        newObject[index] += value
+      
+      counter += 1
+
+
+    for i in range(devicesCount):
+      newObject[i] = newObject[i] / totalsum
+    
+
+    data = newObject.copy()
+
+    minimum = min(data.values())
+    maximum = max(data.values())
+    
+    multipliers = []
+    
+    for i in range(devicesCount):
+      value = data[i]
+      multiplier = (value - minimum) / (maximum - minimum)
+      multipliers.append(multiplier)
+      
+    return {'data': multipliers}, 200
+
+
 
 api.add_resource(Data, '/data')
 api.add_resource(Devices, '/sensor_locations')
@@ -356,6 +501,7 @@ api.add_resource(RealTimeSensors, '/realtime_sensors')
 api.add_resource(RealTimeRooms, '/realtime_rooms')
 api.add_resource(RealTimeSites, '/realtime_sites')
 api.add_resource(Transition, '/transition')
+api.add_resource(HeatMap, '/heatmap')
 
 
 
