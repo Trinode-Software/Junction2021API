@@ -21,7 +21,7 @@ often certain points are passed. One idea we had was to track hospital patients'
     /realtime_rooms
     
 Gives room-level information of activities. A room has one or many sensors. HomeSecure and FluidOffice use this to provide the user with information
-on trespassers or bookable space usage. Could maybe be used to notify cleaning personnel about room priorities.
+on trespassers or bookable space usage. Could maybe be used to notify cleaning personnel about room priorities. Using this endpoint requires enriching the data with room ids.
 
     /realtime_sites
     
@@ -41,4 +41,9 @@ and using these as the startpoints for the Markov chain transitions. This may so
 either are somewhere or aren't) but more like continuous (there's a x% chance that you might be here). The movement heatmap gives us 
 
     /data
+
+This endpoint may be used to retrieve activation amount per device for specified time period. The data points are grouped to user chosen intervals. This could be used for example to track if some sensor has been activated during the past 2 minutes and the data could be viewed on some dashboard.
+
     /sensor_locations
+
+This endpoint is purely to help impementing solutions as it tells the locations of devices on a site.
