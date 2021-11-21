@@ -71,7 +71,7 @@ be used to further understand personnel movement. We limit possible transitions 
     
 Generates a movement (location difference) heatmap by using the /transition -endpoint. This is done by first calculating the most active sensors
 and using these as the startpoints for the Markov chain transitions. This may sound weird as we don't see walk starting points as binary (you
-either are somewhere or aren't) but more like continuous (there's a x% chance that you might be here). The movement heatmap gives us 
+either are somewhere or aren't) but more like continuous (there's a x% chance that you might be here). The movement heatmap seems to give us a good overview of the most-used paths inside a building.
 
     POST(/data)
 
